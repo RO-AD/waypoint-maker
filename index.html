@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>waypoint</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+		}
+		.map {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div id="map" class="map">
+		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=38e5560bebec574e3a4ac7629c538690&libraries=services"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.2/proj4.js"></script>
+		<script>
+			var container = document.getElementById('map');
+			var options = {
+				center: new kakao.maps.LatLng(37.30061299648025, 127.03577935414826),
+				level: 3
+			};
+
+			var map = new kakao.maps.Map(container, options);
+
+			var marker = new kakao.maps.Marker({
+    			// 지도 중심좌표에 마커를 생성합니다
+    			position: map.getCenter()
+			});
+
+			// 지도에 마커를 표시합니다
+			marker.setMap(map);
+
+			// 지도에 클릭 이벤트를 등록합니다
+			// 지도를 클릭하면 마지막 파라미터로 넘어온 함수를 호출합니다
+			kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+
+    		// 클릭한 위도, 경도 정보를 가져옵니다
+    		var latlng = mouseEvent.latLng;
+
+    		// 마커 위치를 클릭한 위치로 옮깁니다
+    		marker.setPosition(latlng);
+			
+			var lat = latlng.getLat();
+			var lng = latlng.getLng();
+
+    		var message = '위도 : ' + lat;
+    		message += ' / 경도 : ' + lng;
+
+    		var resultDiv = document.getElementById('map');
+    		//resultDiv.innerHTML = message;
+			console.log(message);
+			
+
+			p = [lng, lat];
+
+			// EPSG:4326, EPSG:4166 (WGS84)
+			p_arg_longlat = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
+
+			// EPSG:32652 UTM52N (WGS84)
+			p_arg_utm = '+proj=utm +zone=52 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+
+			var resultUtm = proj4(p_arg_longlat, p_arg_utm, p);
+			console.log(resultUtm[0], resultUtm[1]);
+
+			});
+
+			
+		</script>
+	</div>
+</body>
+</html>
