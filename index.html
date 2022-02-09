@@ -2,76 +2,49 @@
 <html>
 <head>
 	<meta charset="utf-8"/>
-	<title>waypoint</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.2/proj4.js"></script>
+
+	<!-- Kakao Map API 스크립트. 현재 appkey는 효진이가 발급받아서 사용중.  -->
+	<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=38e5560bebec574e3a4ac7629c538690&libraries=services"></script>
+
+	<!-- Bootstrap 로드. 프론트엔드 개발 편의를 위함. 현재 버전 5.1.3 -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+	<link rel="icon" type="image/png" href="./img/chequered_flag.png">
+	<title>WPMaker</title>
 	<style>
-		html,
-		body {
+		html, body, .map-container {
 			width: 100%;
 			height: 100%;
 		}
-		.map {
-			width: 100%;
-			height: 100%;
+		.floating {
+			top: 10px;
+			left: 10px;
+			position: fixed;
+			z-index: 2;
+		}
+		.floating > button {
+			box-shadow: 1px 1px 10px 0px #888;
+		}
+		.floating > button:hover {
+			box-shadow: 1px 1px 10px 0px #222;
 		}
 	</style>
 </head>
 <body>
-	<div id="map" class="map">
-		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=38e5560bebec574e3a4ac7629c538690&libraries=services"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.2/proj4.js"></script>
-		<script>
-			var container = document.getElementById('map');
-			var options = {
-				center: new kakao.maps.LatLng(37.30061299648025, 127.03577935414826),
-				level: 3
-			};
-
-			var map = new kakao.maps.Map(container, options);
-
-			var marker = new kakao.maps.Marker({
-    			// 지도 중심좌표에 마커를 생성합니다
-    			position: map.getCenter()
-			});
-
-			// 지도에 마커를 표시합니다
-			marker.setMap(map);
-
-			// 지도에 클릭 이벤트를 등록합니다
-			// 지도를 클릭하면 마지막 파라미터로 넘어온 함수를 호출합니다
-			kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
-
-    		// 클릭한 위도, 경도 정보를 가져옵니다
-    		var latlng = mouseEvent.latLng;
-
-    		// 마커 위치를 클릭한 위치로 옮깁니다
-    		marker.setPosition(latlng);
-			
-			var lat = latlng.getLat();
-			var lng = latlng.getLng();
-
-    		var message = '위도 : ' + lat;
-    		message += ' / 경도 : ' + lng;
-
-    		var resultDiv = document.getElementById('map');
-    		//resultDiv.innerHTML = message;
-			console.log(message);
-			
-
-			p = [lng, lat];
-
-			// EPSG:4326, EPSG:4166 (WGS84)
-			p_arg_longlat = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
-
-			// EPSG:32652 UTM52N (WGS84)
-			p_arg_utm = '+proj=utm +zone=52 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-
-			var resultUtm = proj4(p_arg_longlat, p_arg_utm, p);
-			console.log(resultUtm[0], resultUtm[1]);
-
-			});
-
-			
-		</script>
+	<!-- 플로팅 메뉴들 -->
+	<div class="floating">
+		<button id="init_btn" 
+			type="button" class="btn btn-warning">Initialize Points</button>
+		<button id="download_btn" 
+			type="button" class="btn btn-dark">Download WP</button>
 	</div>
+
+
+	<div class="map-container"></div>
+	<script src="./js/map.js"></script>
 </body>
 </html>
