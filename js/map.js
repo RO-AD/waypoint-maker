@@ -1,3 +1,4 @@
+let map;
 
 // EPSG:4326, EPSG:4166 (WGS84)
 const PROJ_ARG_LONGLAT = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
@@ -5,6 +6,15 @@ const PROJ_ARG_LONGLAT = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
 // EPSG:32652 UTM52N (WGS84)
 const PROJ_ARG_UTM = '+proj=utm +zone=52 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
 
+// 재승이 전 자취방 기준
+const EAST_OFFSET = 325618.68229865003;
+const NORTH_OFFSET = 4129608.2187828263;
+
+// 마커 이미지
+const MARKER_IMAGE = new kakao.maps.MarkerImage(
+    "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png",
+    new kakao.maps.Size(24, 35)
+);
 
 
 
@@ -23,61 +33,67 @@ function utm_to_longlat(x, y) {
     return projected_result;
 }
 
-console.log(longlat_to_utm(127.03257673041796, 37.296834146070275));
+function create_marker(marker_position) {
+    var marker = new kakao.maps.Marker({
+        position: marker_position, // 마커 생성 위치
+        image : MARKER_IMAGE // 마커 이미지 
+    });
 
-$(function() {
-    //var $div = create_map_element();
+    console.log(marker_position);
 
-    var container = $('.map-container')[0];
-    // KCITY : (37.22932411777117, 126.77329790671789)
-    // KGU : (37.30061299648025, 127.03577935414826)
+    // 마커 클릭 이벤트 (마커 삭제)
+    kakao.maps.event.addListener(marker, 'click', function() {
+        marker.setMap(null);
+        console.log('삭제');
+
+        return true;
+    });
+
+    marker.setMap(map);
+    // console.log(mouse_event.latLng.La, mouse_event.latLng.Ma);
+
+}
+
+
+function initialize_map(selector) {
     var options = {
         center: new kakao.maps.LatLng(37.30061299648025, 127.03577935414826),
         level: 3
     };
+    var container = $(selector)[0];
+    return new kakao.maps.Map(container, options);
+}
 
-    var map = new kakao.maps.Map(container, options);
 
-    // 마커 이미지
-    var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
-    var imageSize = new kakao.maps.Size(24, 35); 
-    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+
+$(function() {
+    //var $div = create_map_element();
+
+    map = initialize_map('.map-container');
+    
+    // 스카이뷰 전환 컨트롤
+    var mapTypeControl = new kakao.maps.MapTypeControl();
+    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+
     
     var positions = []
 
 
     // 지도 클릭 이벤트
     kakao.maps.event.addListener(map, 'click', function(mouse_event) {
-        var marker = new kakao.maps.Marker({
-            position: mouse_event.latLng, // 마커 생성 위치
-            image : markerImage // 마커 이미지 
-        });
-
-        // 마커 클릭 이벤트 (마커 삭제)
-        kakao.maps.event.addListener(marker, 'click', function() {
-            marker.setMap(null);
-            console.log('삭제');
-
-            return true;
-        });
-
-        marker.setMap(map);
-        // console.log(mouse_event.latLng.La, mouse_event.latLng.Ma);
-
+        
+        // 마커 생성
+        create_marker(mouse_event.latLng);
 
         // 클릭한 위도, 경도 정보를 가져옵니다
         var latlng = mouse_event.latLng;
 
-        // 마커 위치를 클릭한 위치로 옮깁니다
-        marker.setPosition(latlng);
-
         var lat = latlng.getLat();
         var lng = latlng.getLng();
 
-        console.log('위도 : ' + lat + ' / 경도 : ' + lng);
+        //console.log('위도 : ' + lat + ' / 경도 : ' + lng);
         var utm_position = longlat_to_utm(lng, lat);
-        console.log(utm_position[0] - 325618.68229865003, utm_position[1] - 4129608.2187828263); // UTM
-        console.log(utm_position[0] - 4129608.2187828263, utm_position[1] -325618.68229865003 ); // UTM
+        //console.log(utm_position[0] - EAST_OFFSET, utm_position[1] - NORTH_OFFSET); // UTM
 
     });
 });
