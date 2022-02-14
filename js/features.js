@@ -2,7 +2,7 @@ function init_points() {
     /*
     초기화 버튼 클릭 이벤트 발생 시 callback 함수
     */
-    
+
     // marker 다 없앰.
 }
 
@@ -69,7 +69,19 @@ function wp_to_marker() {
 }
 
 function separate_waypoint() {
+    /*
+    WP 분할해주는 함수
+    */
+}
 
+function kgu_to_kcity_btn() {
+    map.setCenter(new kakao.maps.LatLng(37.23869182220047, 126.77262943430033));
+    map.setLevel(2);
+}
+
+function kcity_to_kgu_btn() {
+    map.setCenter(new kakao.maps.LatLng(37.30061299648025, 127.03577935414826));
+    map.setLevel(2);
 }
 
 $(function() {
@@ -78,4 +90,6 @@ $(function() {
     $('#download_btn').on('click', download_btn);
     //$('#upload_btn').on('click', upload_btn);
     $('#wp_to_marker').on('click', wp_to_marker);
+    $('#kgu_to_kcity_btn').on('click', kgu_to_kcity_btn);
+    $('#kcity_to_kgu_btn').on('click', kcity_to_kgu_btn);
 });
