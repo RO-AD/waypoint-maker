@@ -1,4 +1,5 @@
 let map;
+let markers = [];
 
 // EPSG:4326, EPSG:4166 (WGS84)
 const PROJ_ARG_LONGLAT = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
@@ -44,14 +45,33 @@ function create_marker(marker_position) {
     // 마커 클릭 이벤트 (마커 삭제)
     kakao.maps.event.addListener(marker, 'click', function() {
         marker.setMap(null);
-        console.log('삭제');
+        //console.log('삭제');
+
+        //console.log('배열 길이 : ' + markers.length);
+        //console.log(marker);
+        markers = markers.filter(function(m) {
+            return m.n != marker.n;
+        });
+        //console.log('삭제 완료 : ' + markers.length);
 
         return true;
     });
 
     marker.setMap(map);
     // console.log(mouse_event.latLng.La, mouse_event.latLng.Ma);
+    
+    markers.push(marker);
+    //console.log(marker);
+    //console.log('추가 완료 : ' + markers[markers.length - 1]);
+    //console.log('배열 길이 : ' + markers.length);
+}
 
+function separate_wp_marker(marker_position) {
+    var marker = new kakao.maps.Marker({
+        position: marker_position, // 마커 생성 위치
+        image : MARKER_IMAGE // 마커 이미지 
+    });
+    marker.setMap(map);
 }
 
 
@@ -75,9 +95,6 @@ $(function() {
     var mapTypeControl = new kakao.maps.MapTypeControl();
     map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
 
-    
-    var positions = []
-
 
     // 지도 클릭 이벤트
     kakao.maps.event.addListener(map, 'click', function(mouse_event) {
@@ -88,12 +105,14 @@ $(function() {
         // 클릭한 위도, 경도 정보를 가져옵니다
         var latlng = mouse_event.latLng;
 
-        var lat = latlng.getLat();
-        var lng = latlng.getLng();
+        var lat = latlng.getLat(); // 위도
+        var lng = latlng.getLng(); // 경도
 
         //console.log('위도 : ' + lat + ' / 경도 : ' + lng);
         var utm_position = longlat_to_utm(lng, lat);
         //console.log(utm_position[0] - EAST_OFFSET, utm_position[1] - NORTH_OFFSET); // UTM
+        console.log(utm_position[0], utm_position[1]); // UTM
+        console.log(utm_position);
 
     });
 });
