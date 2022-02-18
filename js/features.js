@@ -2,6 +2,11 @@ function init_points() {
     /*
     초기화 버튼 클릭 이벤트 발생 시 callback 함수
     */
+    var level = map.getLevel();
+
+    initialize_map(map.getCenter());
+    map.setLevel(level);
+    
 
     // marker 다 없앰.
 }
@@ -12,8 +17,10 @@ function download_btn() {
     */
     var date = new Date();
 
-    // 일단 임시. 여기에 waypoint 리스트가 들어갈 예정
-    var data = "waypoint example"; 
+    // waypoint 리스트 저장
+    var data = separate_wp.map(function(position) {
+        return position[0] + ', ' + position[1];
+    }).join('\n');
 
     var blob = new Blob([data], { type: "application/text"});
 	tag = document.createElement("a");
@@ -51,12 +58,18 @@ function wp_to_marker() {
         wp_position = wp_position.split(',');
         console.log(wp_position);
 
-        // 경기대학교 WP 기준 (재승이 자취방 오프셋 뺀 값)
+        // UTM 경기대학교 WP 기준 (재승이 자취방 오프셋 뺀 값)
         var longlat = utm_to_longlat(
                     Number(wp_position[0]) + EAST_OFFSET, 
                     Number(wp_position[1]) + NORTH_OFFSET)
         wp_position = new kakao.maps.LatLng(longlat[1], longlat[0]);
-        console.log(longlat[0], longlat[1]);
+        // console.log(longlat[0], longlat[1]);
+
+        // UTM 
+        // var longlat = utm_to_longlat(
+        //     Number(wp_position[0]), 
+        //     Number(wp_position[1]))
+        // wp_position = new kakao.maps.LatLng(longlat[1], longlat[0]);
 
         // 위·경도 기준
         //wp_position = new kakao.maps.LatLng(Number(wp_position[0]), Number(wp_position[1]));
@@ -79,22 +92,29 @@ function separate_wp_btn() {
     console.log(prev_position['La'], prev_position['Ma']);
     prev_position = longlat_to_utm(prev_position['La'], prev_position['Ma'])
     var now_position;
-    var separate_wp = [];
+    
     var m, n, y, x;
-    var markers_cnt, distance, separate_cnt;
+    var markers_cnt, distance, x_distance, separate_cnt;
     var wp_position;
 
 
     markers_cnt = markers.length;
+    separate_wp.push(prev_position);
     for (var i = 1; i < markers_cnt; i++) {
         console.log(i);
-        separate_wp.push(prev_position);
+        
         now_position = markers[i].getPosition();
         now_position = longlat_to_utm(now_position['La'], now_position['Ma']);
 
-        distance = now_position[0] - prev_position[0];
-        separate_cnt = parseInt(Math.abs(distance * 2));
+        distance = Math.sqrt(Math.pow((now_position[0] - prev_position[0]), 2) + 
+                Math.pow((now_position[1] - prev_position[1]), 2));
+        
+        // 점과 점 사이를 0.5 간격으로 나눈 횟수
+        separate_cnt = parseInt(Math.abs(distance * 2)); 
 
+        x_distance = (now_position[0] - prev_position[0]);
+        x_term = x_distance / separate_cnt
+        
         // 기울기
         m = (now_position[1] - prev_position[1]) / (now_position[0] - prev_position[0])
         // y 절편
@@ -107,11 +127,12 @@ function separate_wp_btn() {
         console.log('separate_cnt ' + separate_cnt);
         
         for (var j = 1; j < separate_cnt+1; j++) {
-            x = prev_position[0] + distance / separate_cnt * j;
+            x = prev_position[0] + x_term * j;
             console.log('x : ' + m);
             y = m * (x) + n;
-            separate_wp.push([x,y]);
-
+            if (j != 1) {
+               separate_wp.push([x,y]); // UTM 값
+            }
         //     console.log(x + ' / ' +y);
 
             wp_position = utm_to_longlat(x, y);
@@ -123,7 +144,7 @@ function separate_wp_btn() {
 
         prev_position = now_position;
     }
-    separate_wp.push(now_position);
+    //separate_wp.push(now_position);
     console.log(separate_wp);
     
 }
