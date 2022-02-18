@@ -1,5 +1,6 @@
 let map;
 let markers = [];
+let separate_wp = [];
 
 // EPSG:4326, EPSG:4166 (WGS84)
 const PROJ_ARG_LONGLAT = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
@@ -40,7 +41,7 @@ function create_marker(marker_position) {
         image : MARKER_IMAGE // 마커 이미지 
     });
 
-    console.log(marker_position);
+    //console.log(marker_position);
 
     // 마커 클릭 이벤트 (마커 삭제)
     kakao.maps.event.addListener(marker, 'click', function() {
@@ -75,26 +76,25 @@ function separate_wp_marker(marker_position) {
 }
 
 
-function initialize_map(selector) {
+function initialize_map(latlng) {
+    $('.map-container').remove();
+    var container = $('<div class="map-container"></div>')[0];
+    
+    $(document.body).append(container);
+
+    markers = [];
+    separate_wp = [];
+
     var options = {
-        center: new kakao.maps.LatLng(37.30061299648025, 127.03577935414826),
+        center: latlng,
         level: 3
     };
-    var container = $(selector)[0];
-    return new kakao.maps.Map(container, options);
-}
 
+    map = new kakao.maps.Map(container, options);
 
-
-$(function() {
-    //var $div = create_map_element();
-
-    map = initialize_map('.map-container');
-    
     // 스카이뷰 전환 컨트롤
     var mapTypeControl = new kakao.maps.MapTypeControl();
     map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
-
 
     // 지도 클릭 이벤트
     kakao.maps.event.addListener(map, 'click', function(mouse_event) {
@@ -112,8 +112,17 @@ $(function() {
         var utm_position = longlat_to_utm(lng, lat);
         //console.log(utm_position[0] - EAST_OFFSET, utm_position[1] - NORTH_OFFSET); // UTM
         console.log(utm_position[0], utm_position[1]); // UTM
-        console.log(utm_position);
 
     });
+
+}
+
+
+
+$(function() {
+    //var $div = create_map_element();
+
+    initialize_map(new kakao.maps.LatLng(37.30061299648025, 127.03577935414826));
+    
 });
 
