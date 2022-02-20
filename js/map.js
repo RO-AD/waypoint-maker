@@ -36,38 +36,39 @@ function utm_to_longlat(x, y) {
 }
 
 function create_marker(marker_position) {
+    /*
+    마커 생성 및 마커 클릭 이벤트 발생 시 마커 삭제
+    */
     var marker = new kakao.maps.Marker({
         position: marker_position, // 마커 생성 위치
         image : MARKER_IMAGE // 마커 이미지 
     });
 
-    //console.log(marker_position);
-
     // 마커 클릭 이벤트 (마커 삭제)
     kakao.maps.event.addListener(marker, 'click', function() {
         marker.setMap(null);
-        //console.log('삭제');
-
-        //console.log('배열 길이 : ' + markers.length);
-        //console.log(marker);
+        
+        // 마커 배열에서 삭제
         markers = markers.filter(function(m) {
             return m.n != marker.n;
         });
-        //console.log('삭제 완료 : ' + markers.length);
 
         return true;
     });
 
+    // 지도에 마커 표시
     marker.setMap(map);
-    // console.log(mouse_event.latLng.La, mouse_event.latLng.Ma);
     
+    // 마커 배열에 추가
     markers.push(marker);
-    //console.log(marker);
-    //console.log('추가 완료 : ' + markers[markers.length - 1]);
-    //console.log('배열 길이 : ' + markers.length);
+    
 }
 
 function separate_wp_marker(marker_position) {
+    /*
+    분할된 wp를 마커로 표시
+    markers 배열에 포함되지 않음
+    */
     var marker = new kakao.maps.Marker({
         position: marker_position, // 마커 생성 위치
         image : MARKER_IMAGE // 마커 이미지 
@@ -77,6 +78,10 @@ function separate_wp_marker(marker_position) {
 
 
 function initialize_map(latlng) {
+    /*
+    지도 초기화 함수
+    markers, separate_wp 변수도 초기화
+    */
     $('.map-container').remove();
     var container = $('<div class="map-container"></div>')[0];
     
@@ -103,15 +108,14 @@ function initialize_map(latlng) {
         create_marker(mouse_event.latLng);
 
         // 클릭한 위도, 경도 정보를 가져옵니다
-        var latlng = mouse_event.latLng;
+        // var latlng = mouse_event.latLng;
 
-        var lat = latlng.getLat(); // 위도
-        var lng = latlng.getLng(); // 경도
+        // var lat = latlng.getLat(); // 위도
+        // var lng = latlng.getLng(); // 경도
 
-        //console.log('위도 : ' + lat + ' / 경도 : ' + lng);
-        var utm_position = longlat_to_utm(lng, lat);
-        //console.log(utm_position[0] - EAST_OFFSET, utm_position[1] - NORTH_OFFSET); // UTM
-        console.log(utm_position[0], utm_position[1]); // UTM
+        // console.log('위도 : ' + lat + ' / 경도 : ' + lng);
+        // var utm_position = longlat_to_utm(lng, lat);
+        // console.log(utm_position[0], utm_position[1]); // UTM
 
     });
 
