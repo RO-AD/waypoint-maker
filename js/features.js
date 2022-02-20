@@ -6,9 +6,6 @@ function init_points() {
 
     initialize_map(map.getCenter());
     map.setLevel(level);
-    
-
-    // marker 다 없앰.
 }
 
 function download_btn() {
@@ -47,10 +44,7 @@ function wp_to_marker() {
     WP를 마커로 변환해주는 함수
     재승이 자취방 오프셋을 뺀 경기대학교 WP와 위·경도 값 중에서 주석 해제하여 선택하여 사용
     */
-
     var wp_positions = document.getElementById('wp_position').value;
-
-    //wp_positions = wp_position.replace(' ', '').split(',');
     wp_positions = wp_positions.replaceAll(', ', ',').split(' ');
 
     console.log(wp_positions);
@@ -63,7 +57,6 @@ function wp_to_marker() {
                     Number(wp_position[0]) + EAST_OFFSET, 
                     Number(wp_position[1]) + NORTH_OFFSET)
         wp_position = new kakao.maps.LatLng(longlat[1], longlat[0]);
-        // console.log(longlat[0], longlat[1]);
 
         // UTM 
         // var longlat = utm_to_longlat(
@@ -78,10 +71,7 @@ function wp_to_marker() {
         map.setCenter(wp_position); // 해당 좌표로 화면 이동
     });
     
-    
-    //console.log('wp_to_marker : '+ wp_position);
     map.setLevel(2); // 확대 레벨 2
-
 }
 
 function separate_wp_btn() {
@@ -97,12 +87,10 @@ function separate_wp_btn() {
     var markers_cnt, distance, x_distance, separate_cnt;
     var wp_position;
 
-
     markers_cnt = markers.length;
     separate_wp.push(prev_position);
+
     for (var i = 1; i < markers_cnt; i++) {
-        console.log(i);
-        
         now_position = markers[i].getPosition();
         now_position = longlat_to_utm(now_position['La'], now_position['Ma']);
 
@@ -119,34 +107,25 @@ function separate_wp_btn() {
         m = (now_position[1] - prev_position[1]) / (now_position[0] - prev_position[0])
         // y 절편
         n = prev_position[1] - (m * prev_position[0]);
-
-        console.log('####################');
-        // console.log(now_position);
-        // console.log(now_position[1] - prev_position[1]);
-        // console.log(now_position[0] - prev_position[0]);
-        console.log('separate_cnt ' + separate_cnt);
         
         for (var j = 1; j < separate_cnt+1; j++) {
             x = prev_position[0] + x_term * j;
             console.log('x : ' + m);
             y = m * (x) + n;
+
+            // 첫 번째 좌표는 입력하지 않음 (중복 방지)
             if (j != 1) {
                separate_wp.push([x,y]); // UTM 값
             }
-        //     console.log(x + ' / ' +y);
 
             wp_position = utm_to_longlat(x, y);
             wp_position = new kakao.maps.LatLng(wp_position[1], wp_position[0]);
-            separate_wp_marker(wp_position);
             
+            // 마커로 표시
+            separate_wp_marker(wp_position);
         }
-        // map.setCenter(wp_position);
-
         prev_position = now_position;
     }
-    //separate_wp.push(now_position);
-    console.log(separate_wp);
-    
 }
 
 function kgu_to_kcity_btn() {
@@ -163,7 +142,6 @@ $(function() {
     // event listener
     $('#init_btn').on('click', init_points);
     $('#download_btn').on('click', download_btn);
-    //$('#upload_btn').on('click', upload_btn);
     $('#wp_to_marker').on('click', wp_to_marker);
     $('#kgu_to_kcity_btn').on('click', kgu_to_kcity_btn);
     $('#kcity_to_kgu_btn').on('click', kcity_to_kgu_btn);
